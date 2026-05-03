@@ -1,7 +1,9 @@
 BOT_TOKEN: ""
 mysql:
-  host:
-  port:
-  database
-  user:
-  password:
+  host: 192.95.37.8
+  port: 3306
+  database: s359_Abccloud
+  user: u359_H9v5b4JhSR
+  password: COP7UPkJBY.PL@RxD68VATqu
+hash:
+  roundSalt: 12

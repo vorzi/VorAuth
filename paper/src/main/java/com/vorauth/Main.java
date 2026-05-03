@@ -1,9 +1,16 @@
 package com.vorauth;
 
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.java.JavaPlugin;
+import com.vorauth.database.MySQLManager;
+import com.vorauth.database.Database;
+import com.vorauth.session.SessionCache;
 
 public class Main extends JavaPlugin {
+    private MySQLManager mysql;
+    private Database database;
+    private SessionCache sessionCache;
+
     @Override
     public void onEnable() {
         getLogger().info("[VorAuth] UP");
@@ -11,15 +18,35 @@ public class Main extends JavaPlugin {
         PluginCommand setpasswdCommand = getCommand("setpasswd");
         PluginCommand registerCommand = getCommand("register");
         PluginCommand loginCommand = getCommand("login");
-        /*
-        if (changepasswdCommand != null) changepasswdCommand.setExecutor();
-        if (changepasswdCommand != null) changepasswdCommand.setExecutor();
-        if (changepasswdCommand != null) changepasswdCommand.setExecutor();
-        */
+
+        saveDefaultConfig();
+        
+        mysql = new MySQLManager(
+            getConfig().getString("mysql.host"),
+            getConfig().getString("mysql.port"),
+            getConfig().getString("mysql.database"),
+            getConfig().getString("mysql.user"),
+            getConfig().getString("mysql.password")
+        );
+        
+        database = new Database(mysql);
+        sessionCache = new SessionCache();
+
+
+        //if (changepasswdCommand != null) changepasswdCommand.setExecutor();
     }
 
     @Override
     public void onDisable() {
+        mysql.close();
         getLogger().info("[VorAuth] DOWN");
+    }
+
+    public Database getDatabase() {
+        return database;
+    }
+
+    public SessionCache getSessionCache() {
+        return sessionCache;
     }
 }
