@@ -1,0 +1,22 @@
+name: VorAuth
+version: ${version}
+main: com.vorauth.Main
+api-version: '1.21'
+commands:
+  register:
+    description: Register VorAuth Command
+    usage: /register
+  login:
+    description: Login VorAuth Command
+    usage: /login
+  changepasswd:
+    description: Change Password VorAuth Command
+    usage: /changepasswd
+  setpasswd:
+    description: Set Password VorAuth Command
+    usage: /setpasswd
+    permission: vorauth.admin
+permissions:
+  vorauth.admin:
+    description: VorAuth Admin
+    default: op

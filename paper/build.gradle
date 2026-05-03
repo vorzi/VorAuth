@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+    id 'io.papermc.paperweight.userdev' version '1.7.1'
+}
+
+dependencies {
+    implementation project(':common')
+    paperweight.paperDevBundle("${paper_version}")
+}
+
+tasks.jar {
+    archiveBaseName = 'VorAuth-paper'
+    archiveClassifier = 'dev'
+    from(project(':common').sourceSets.main.output)
+}
+
+tasks.reobfJar {
+    outputJar = rootProject.layout.buildDirectory.file("libs/Vor-Auth-${project.version}.jar")
+}
+tasks.build {
+    dependsOn tasks.reobfJar
+}
+
+tasks.assemble {
+    dependsOn tasks.reobfJar
+}
+
+tasks.processResources {
+    inputs.property 'version', project.version
+    filteringCharset = 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand version: project.version
+    }
+}
