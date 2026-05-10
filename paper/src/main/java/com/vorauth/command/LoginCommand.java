@@ -3,6 +3,8 @@ package com.vorauth.command;
 import com.vorauth.Main;
 import com.vorauth.session.HashCrypt;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -12,6 +14,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class LoginCommand implements CommandExecutor {
+    private final Map<UUID, AtomicInteger> loginAttempts = new HashMap<>();
     private final Main plugin;
 
     public LoginCommand(Main plugin) {
@@ -35,7 +38,10 @@ public class LoginCommand implements CommandExecutor {
         String password = args[0];
 
         UUID uuid = player.getUniqueId();
-        AtomicInteger count = new AtomicInteger(plugin.getConfig().getInt("login.chances"));
+        AtomicInteger count = loginAttempts.computeIfAbsent(
+            uuid,
+            id -> new AtomicInteger(plugin.getConfig().getInt("login.chances"))
+        );
         
         plugin.getDatabase().playerExists(uuid).thenAccept(exists -> Bukkit.getScheduler().runTask(plugin, () -> {
             if (exists) {
@@ -43,8 +49,13 @@ public class LoginCommand implements CommandExecutor {
                     if (!isPassword) {
                         count.decrementAndGet();
 
-                        player.sendActionBar("$c Invalid Password, You have only " 
+                        player.sendActionBar("§c Invalid Password, You have only " 
                             + count.get() + " Chances");
+
+                        if (count.get() <= 0) {
+                            player.kickPlayer("Wrong password to much times, bye!");
+                            loginAttempts.clear();
+                        };
                         return;
                     }
 
