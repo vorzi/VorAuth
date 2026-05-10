@@ -58,7 +58,7 @@ public class RegisterCommand implements CommandExecutor {
 
             plugin.getDatabase().createUser(uuid, hashedPassword).thenAccept(created -> Bukkit.getScheduler().runTask(plugin, () -> {
                 if (created) {
-                    player.sendMessage("Registered successfully! Try to login now");
+                    player.sendMessage("Registered successfully! Try to login");
                 } else {
                     player.sendMessage("Failed to register (try see the console). Try again later.");
                 }

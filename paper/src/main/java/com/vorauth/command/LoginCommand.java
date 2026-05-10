@@ -2,7 +2,7 @@ package com.vorauth.command;
 
 import com.vorauth.Main;
 import com.vorauth.session.HashCrypt;
-
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -35,20 +35,24 @@ public class LoginCommand implements CommandExecutor {
         String password = args[0];
 
         UUID uuid = player.getUniqueId();
-
+        AtomicInteger count = new AtomicInteger(plugin.getConfig().getInt("login.chances"));
+        
         plugin.getDatabase().playerExists(uuid).thenAccept(exists -> Bukkit.getScheduler().runTask(plugin, () -> {
             if (exists) {
                 plugin.getDatabase().isPassword(uuid, password).thenAccept(isPassword -> Bukkit.getScheduler().runTask(plugin, () -> {
                     if (!isPassword) {
-                        player.sendMessage("Invalid Password");
+                        count.decrementAndGet();
+
+                        player.sendActionBar("$c Invalid Password, You have only " 
+                            + count.get() + " Chances");
                         return;
                     }
 
-                    player.sendMessage("Logged With Success!");
+                    player.sendMessage("§a Logged With Success!");
                     return;
                 }));
-                return;
-            }
+            return;
+        }
             player.sendMessage("You are not registered.");
         }));
         

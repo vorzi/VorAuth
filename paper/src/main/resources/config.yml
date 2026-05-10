@@ -7,3 +7,5 @@ mysql:
   password:
 hash:
   roundSalt: 12
+login:
+  chances: 3
