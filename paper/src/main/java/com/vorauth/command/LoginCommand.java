@@ -30,14 +30,19 @@ public class LoginCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
+        UUID uuid = player.getUniqueId();
+        long remainingCooldown = plugin.getLoginCooldownRemainingSeconds(uuid);
+        if (remainingCooldown > 0) {
+            player.sendMessage("§cCooldown ativo. Aguarde " + remainingCooldown + "s.");
+            return true;
+        }
+
         if (args.length < 1 || args[0].isEmpty()) {
             player.sendMessage("Usage: /login <password>");
             return true;
         }
 
         String password = args[0];
-
-        UUID uuid = player.getUniqueId();
         AtomicInteger count = loginAttempts.computeIfAbsent(
             uuid,
             id -> new AtomicInteger(plugin.getConfig().getInt("login.chances"))
@@ -53,13 +58,17 @@ public class LoginCommand implements CommandExecutor {
                             + count.get() + " Chances");
 
                         if (count.get() <= 0) {
-                            player.kickPlayer("Wrong password to much times, bye!");
-                            loginAttempts.clear();
+                            plugin.startLoginCooldown(uuid);
+                            loginAttempts.remove(uuid);
+                            long seconds = plugin.getConfig().getLong("login.cooldown", 0);
+                            player.kickPlayer("Errou muitas vezes. Aguarde " + seconds + "s.");
                         };
                         return;
                     }
 
                     player.sendMessage("§a Logged With Success!");
+                    loginAttempts.remove(uuid);
+                    plugin.clearLoginCooldown(uuid);
                     return;
                 }));
             return;

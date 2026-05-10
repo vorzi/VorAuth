@@ -9,3 +9,4 @@ hash:
   roundSalt: 12
 login:
   chances: 3
+  cooldown: 10

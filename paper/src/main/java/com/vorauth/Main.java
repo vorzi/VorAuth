@@ -1,5 +1,7 @@
 package com.vorauth;
 
+import com.vorauth.listener.LoginCooldownListener;
+import com.vorauth.security.CooldownManager;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.vorauth.database.MySQLManager;
@@ -7,10 +9,13 @@ import com.vorauth.command.*;
 import com.vorauth.database.Database;
 import com.vorauth.session.SessionCache;
 
+import java.util.UUID;
+
 public class Main extends JavaPlugin {
     private MySQLManager mysql;
     private Database database;
     private SessionCache sessionCache;
+    private final CooldownManager loginCooldowns = new CooldownManager();
 
     @Override
     public void onEnable() {
@@ -37,6 +42,7 @@ public class Main extends JavaPlugin {
             if (!ok) getLogger().warning("[VorAuth] Failed to create tables.");
         });
 
+        getServer().getPluginManager().registerEvents(new LoginCooldownListener(this), this);
 
         if (registerCommand != null) registerCommand.setExecutor(new RegisterCommand(this));
         if (loginCommand != null) loginCommand.setExecutor(new LoginCommand(this));
@@ -54,5 +60,18 @@ public class Main extends JavaPlugin {
 
     public SessionCache getSessionCache() {
         return sessionCache;
+    }
+
+    public long getLoginCooldownRemainingSeconds(UUID uuid) {
+        return loginCooldowns.remainingSeconds(uuid);
+    }
+
+    public void startLoginCooldown(UUID uuid) {
+        long seconds = getConfig().getLong("login.cooldown", 0);
+        loginCooldowns.start(uuid, seconds);
+    }
+
+    public void clearLoginCooldown(UUID uuid) {
+        loginCooldowns.clear(uuid);
     }
 }
