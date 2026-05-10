@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'io.papermc.paperweight.userdev' version '1.7.1'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 dependencies {
@@ -9,7 +10,7 @@ dependencies {
     paperweight.paperDevBundle("${paper_version}")
 
     compileOnly 'com.mysql:mysql-connector-j:8.4.0'
-    implementation 'com.zaxxer:HikariCP:5.1.0'
+    implementation "com.zaxxer:HikariCP:5.1.0"
     implementation 'org.mindrot:jbcrypt:0.4'
 }
 
@@ -19,9 +20,17 @@ tasks.jar {
     from(project(':common').sourceSets.main.output)
 }
 
+shadowJar {
+    archiveClassifier.set('')
+}
+
 tasks.reobfJar {
+    dependsOn shadowJar
+    inputJar.set(shadowJar.archiveFile)
+
     outputJar = rootProject.layout.buildDirectory.file("libs/Vor-Auth-${project.version}.jar")
 }
+
 tasks.build {
     dependsOn tasks.reobfJar
 }

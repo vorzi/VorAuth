@@ -3,6 +3,7 @@ package com.vorauth;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.vorauth.database.MySQLManager;
+import com.vorauth.command.RegisterCommand;
 import com.vorauth.database.Database;
 import com.vorauth.session.SessionCache;
 
@@ -32,8 +33,12 @@ public class Main extends JavaPlugin {
         database = new Database(mysql);
         sessionCache = new SessionCache();
 
+        database.createTablesIfNotExist().thenAccept(ok -> {
+            if (!ok) getLogger().warning("[VorAuth] Failed to create tables.");
+        });
 
-        //if (changepasswdCommand != null) changepasswdCommand.setExecutor();
+
+        if (registerCommand != null) registerCommand.setExecutor(new RegisterCommand(this));
     }
 
     @Override
