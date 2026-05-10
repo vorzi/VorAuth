@@ -8,6 +8,8 @@ import java.sql.Types;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import com.vorauth.session.HashCrypt;
+
 public class Database {
 
     private final MySQLManager mysql;
@@ -29,6 +31,29 @@ public class Database {
                 ResultSet rs = ps.executeQuery();
                 return rs.next();
 
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        });
+    }
+
+    public CompletableFuture<Boolean> isPassword(UUID uuid, String passwd) {
+        return CompletableFuture.supplyAsync(() -> {
+
+            String sql = "SELECT * FROM users WHERE uuid = ?";
+
+            try (Connection conn = mysql.getDataSource().getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                ps.setString(1, uuid.toString());
+
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    String password = rs.getString("password");
+                    return HashCrypt.check(passwd, password);
+                };
+                return false;
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;

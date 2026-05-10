@@ -3,7 +3,7 @@ package com.vorauth;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.vorauth.database.MySQLManager;
-import com.vorauth.command.RegisterCommand;
+import com.vorauth.command.*;
 import com.vorauth.database.Database;
 import com.vorauth.session.SessionCache;
 
@@ -39,6 +39,7 @@ public class Main extends JavaPlugin {
 
 
         if (registerCommand != null) registerCommand.setExecutor(new RegisterCommand(this));
+        if (loginCommand != null) loginCommand.setExecutor(new LoginCommand(this));
     }
 
     @Override
